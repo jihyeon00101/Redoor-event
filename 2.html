@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>영원의 집 | REDOOR 5TH</title>
+
+<style>
+:root{
+  --bg:#000;
+  --fg:#fff;
+  --muted:rgba(255,255,255,.6);
+  --line:rgba(255,255,255,.18);
+  --radius:12px;
+  --max:900px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",system-ui,sans-serif;
+  line-height:1.6;
+}
+
+a{color:var(--fg);text-decoration:none}
+a:hover{ text-decoration: underline; text-underline-offset: 3px; }
+
+.container{
+  width:min(var(--max),calc(100% - 32px));
+  margin:0 auto;
+}
+
+h1{font-size:38px;letter-spacing:.12em;margin:0}
+h2{font-size:22px;letter-spacing:.08em;margin:0}
+p{margin:0}
+@media(max-width:640px){
+  h1{font-size:34px;}
+}
+
+/* Views */
+.view{ display:none; min-height: calc(100vh - 24px); }
+.view.is-active{ display:block; }
+
+/* HARD GUARANTEE: once gate opens, entrance is hidden */
+body.gate-open #view-entrance{ display:none !important; }
+
+/* Fade transition helper */
+.fade{ opacity:0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
+.view.is-active .fade{ opacity:1; transform: translateY(0); }
+
+/* Flash overlay (for gate transition) */
+.flash{
+  position:fixed;
+  inset:0;
+  background:#000;
+  opacity:0;
+  pointer-events:none;
+  z-index:999;
+  transition: opacity .12s linear;
+}
+.flash.is-on{ opacity:1; }
+
+/* Entrance hero */
+.hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:26px;
+  margin: 0 auto;
+}
+
+.hero-copy{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+
+.hero-q{
+  font-size: 14px;
+  letter-spacing: .06em;
+  color: var(--muted);
+  text-align:center;
+}
+
+.hero-sub{
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--fg);
+  opacity:.9;
+}
+
+.divider{
+  width: 160px;
+  height: 1px;
+  background: var(--line);
+  margin-top: 10px;
+}
+
+/* Gate */
+.entrance{ padding-top: 0; text-align:center; }
+.gate-wrap{
+  margin-top: 120px;
+  display:flex;
+  justify-content:center;
+}
+.gate-frame{
+  width: 200px;
+  height: 320px;
+  border:1px solid var(--line);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  position: relative;
+}
+
+/* Door */
+.gate-door{
+  width: 160px;
+  height: 260px;
+  margin-bottom: 20px;
+  background: var(--fg);
+  cursor:pointer;
+  position: relative;
+  transform-origin: left center;
+  transition: transform .6s ease;
+}
+.gate-door:hover{ transform: perspective(900px) rotateY(-6deg); }
+body.gate-open .gate-door{ transform: perspective(900px) rotateY(-72deg); }
+
+/* Handle */
+.gate-handle{
+  position:absolute;
+  right: 22px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(0,0,0,.85);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+/* Light glow from the gap */
+.gate-glow{
+  position:absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(to right, rgba(255,255,255,0.55), rgba(255,255,255,0.0));
+  opacity: 0.15;
+  transition: opacity .4s ease, width .6s ease;
+}
+body.gate-open .gate-glow{ opacity: 0.9; width: 22px; }
+
+/* Hall */
+.hall{ padding-top: 72px; text-align:center; }
+.hall-frame{ max-width: 420px; margin: 0 auto; padding: 12px 20px 24px; border: none; }
+
+/* Door grid (mobile-first) */
+.door-row{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+/* Hall door tile */
+.door{
+  position:relative;
+  border:1px solid var(--line);
+  padding:0;
+  height:248px;
+  cursor:pointer;
+  transition: transform .2s ease, border-color .2s ease;
+  background:var(--fg);
+  color:#000;
+}
+
+.door .label{
+  position:absolute;
+  top:22px;
+  left:0; right:0;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:.12em;
+}
+
+.door .handle{
+  position:absolute;
+  right:18px;
+  top:50%;
+  width:10px;
+  height:10px;
+  border:1.5px solid rgba(0,0,0,.8);
+  border-radius:50%;
+  transform:translateY(-50%);
+}
+
+a.door:focus-visible,
+.door:focus-visible{ outline: 2px solid rgba(255,255,255,.65); outline-offset: 4px; }
+
+.door:hover{ transform:translateY(-2px); border-color:#000; }
+
+/* Rooms */
+.room{ padding-top: 110px; }
+.room-head{ margin-bottom: 24px; display:flex; justify-content:space-between; align-items:baseline; gap: 12px; }
+.hint{ font-size:12px; color: var(--muted); }
+
+.info-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+@media(max-width:640px){ .info-grid{grid-template-columns:1fr} }
+.block h3{ font-size:12px; letter-spacing:.1em; margin:0 0 6px; }
+.block p{ color:var(--muted) }
+.note{ margin-top:32px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); }
+
+.accordion button{ width:100%; background:none; border:1px solid var(--line); color:var(--fg); padding:16px; text-align:left; cursor:pointer; border-radius: var(--radius); }
+.accordion button + div{ display:none; padding:16px; border:1px solid var(--line); border-top:none; color:var(--muted); border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 10px; }
+
+footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center; color:var(--muted); }
+
+/* Corridor */
+.corridor{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  background: var(--bg);
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+}
+.corridor button{
+  background:none;
+  border:1px solid var(--line);
+  color: var(--fg);
+  width:44px;height:44px;
+  border-radius:50%;
+  cursor:pointer;
+}
+.corridor .where{ font-size:12px; color:var(--muted); letter-spacing:.08em; }
+</style>
+</head>
+
+<body>
+<div class="flash" id="flash" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- VIEW: Entrance (gate) -->
+  <main class="view is-active" id="view-entrance" data-view>
+    <section class="entrance" aria-label="영원의 집 입구">
+      <div class="hero fade">
+        <div class="gate-wrap">
+          <div class="gate-frame">
+            <div class="gate-door" id="gateDoor" role="button" tabindex="0" aria-label="대문 열기">
+              <div class="gate-handle"></div>
+              <div class="gate-glow"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <div class="hero-q">영원의 집으로 들어가시겠습니까?</div>
+          <div class="hero-sub">문을 열어주세요.</div>
+          <div class="divider" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW: Hall (4 doors) -->
+  <main class="view" id="view-hall" data-view>
+    <section class="hall" aria-label="복도">
+      <div class="hall-frame fade">
+        <h1 style="font-size:20px; letter-spacing:.16em; margin-bottom:32px; margin-top:-56px;">House of Eternity</h1>
+
+        <div class="door-row" aria-label="문 선택">
+          <div class="door" role="button" tabindex="0" data-route="#/info">
+            <span class="label">INFORMATION</span>
+            <span class="handle"></span>
+          </div>
+          <div class="door" role="button" tabindex="0" data-route="#/program">
+            <span class="label">PROGRAM</span>
+            <span class="handle"></span>
+          </div>
+          <div class="door" role="button" tabindex="0" data-route="#/perks">
+            <span class="label">NOTICE</span>
+            <span class="handle"></span>
+          </div>
+          <div class="door" role="button" tabindex="0" data-route="#/faq">
+            <span class="label">FAQ</span>
+            <span class="handle"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW: Room - Info -->
+  <main class="view" id="view-info" data-view>
+    <section class="room" aria-label="전시 안내">
+      <div class="fade">
+        <div class="room-head">
+          <h2>전시 안내</h2>
+          <p class="hint">문은 열리면, 먼저 시간을 알려준다.</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="block">
+            <h3>기간</h3>
+            <p>YYYY.MM.DD – YYYY.MM.DD</p>
+          </div>
+          <div class="block">
+            <h3>운영 시간</h3>
+            <p>12:00 – 20:00</p>
+          </div>
+          <div class="block">
+            <h3>장소</h3>
+            <p>서울 ○○구 ○○로 ○○</p>
+          </div>
+          <div class="block">
+            <h3>오시는 길</h3>
+            <p>○○역 도보 ○분</p>
+          </div>
+        </div>
+
+        <p class="note">
+          이 공간은 노래가 지나간 자리와<br>
+          사라진 감정의 흔적을 잠시 머물게 하는 집입니다.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW: Room - Program -->
+  <main class="view" id="view-program" data-view>
+    <section class="room" aria-label="프로그램">
+      <div class="fade">
+        <div class="room-head">
+          <h2>프로그램</h2>
+          <p class="hint">가진 시간만큼, 열 수 있는 방이 달라진다.</p>
+        </div>
+
+        <div class="accordion">
+          <button onclick="toggle(this)">10분의 방</button>
+          <div>공간 둘러보기 · 기록 읽기</div>
+
+          <button onclick="toggle(this)">30분의 방</button>
+          <div>참여 프로그램 · 음료 특전</div>
+
+          <button onclick="toggle(this)">오래 머무는 방</button>
+          <div>심화 체험 · 반복 관람</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW: Room - Perks -->
+  <main class="view" id="view-perks" data-view>
+    <section class="room" aria-label="특전">
+      <div class="fade">
+        <h2>특전</h2>
+        <p class="lead" style="margin-top:12px; color: var(--muted);">서랍은 천천히 열릴수록 선명하다.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW: Room - FAQ -->
+  <main class="view" id="view-faq" data-view>
+    <section class="room" aria-label="FAQ">
+      <div class="fade">
+        <h2>FAQ</h2>
+        <p class="lead" style="margin-top:12px; color: var(--muted);">누군가의 질문이, 다음 사람의 문이 된다.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © REDOOR 5TH — House of Eternity
+  </footer>
+
+</div>
+
+<div class="corridor" aria-label="복도 네비게이션">
+  <button id="backBtn" type="button" aria-label="뒤로">←</button>
+  <div class="where" id="where">영원의 집</div>
+  <button id="forwardBtn" type="button" aria-label="앞으로">→</button>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  function toggle(btn){
+    var panel = btn.nextElementSibling;
+    panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+  }
+  window.toggle = toggle;
+
+  var views = {
+    entrance: document.getElementById('view-entrance'),
+    hall: document.getElementById('view-hall'),
+    info: document.getElementById('view-info'),
+    program: document.getElementById('view-program'),
+    perks: document.getElementById('view-perks'),
+    faq: document.getElementById('view-faq')
+  };
+
+  var flash = document.getElementById('flash');
+  var whereEl = document.getElementById('where');
+  var backBtn = document.getElementById('backBtn');
+  var forwardBtn = document.getElementById('forwardBtn');
+
+  function setActive(name){
+    var k;
+    for(k in views){
+      if(Object.prototype.hasOwnProperty.call(views, k) && views[k]){
+        views[k].classList.remove('is-active');
+      }
+    }
+    if(views[name]) views[name].classList.add('is-active');
+
+    if(whereEl){
+      var map = { entrance:'입구', hall:'복도', info:'전시 안내', program:'프로그램', perks:'특전', faq:'FAQ' };
+      whereEl.textContent = map[name] || '영원의 집';
+    }
+  }
+
+  function routeFromHash(hash){
+    var h = (hash !== undefined && hash !== null ? hash : location.hash) || '#/';
+    if(h === '#/' || h === '#') return 'entrance';
+    if(h === '#/hall') return 'hall';
+    if(h === '#/info') return 'info';
+    if(h === '#/program') return 'program';
+    if(h === '#/perks') return 'perks';
+    if(h === '#/faq') return 'faq';
+    return 'entrance';
+  }
+
+  function goto(hash){
+    // Visual guarantee (mobile-safe)
+    setActive(routeFromHash(hash));
+    // History/back support
+    location.hash = hash;
+    window.scrollTo(0, 0);
+  }
+
+  function onRouteChange(){
+    setActive(routeFromHash());
+    window.scrollTo(0, 0);
+  }
+
+  // Gate open (mobile/desktop safe)
+  (function(){
+    var gateDoor = document.getElementById('gateDoor');
+    if(!gateDoor) return;
+
+    var opened = false;
+
+    function openGate(){
+      if(opened) return;
+      opened = true;
+
+      document.body.classList.add('gate-open');
+
+      if(flash){
+        flash.classList.add('is-on');
+        setTimeout(function(){ flash.classList.remove('is-on'); }, 120);
+      }
+
+      goto('#/hall');
+    }
+
+    gateDoor.addEventListener('click', openGate);
+    if('PointerEvent' in window){ gateDoor.addEventListener('pointerup', openGate); }
+    gateDoor.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openGate(); }
+    });
+  })();
+
+  // Hall doors navigation
+  function bindRoute(el){
+    var r = el.getAttribute('data-route');
+    if(!r) return;
+
+    function activate(){ goto(r); }
+
+    // iOS Safari: click is the safest default
+    el.addEventListener('click', function(){ activate(); });
+
+    // Pointer is additive (do not preventDefault)
+    if('PointerEvent' in window){
+      el.addEventListener('pointerup', function(){ activate(); });
+    }
+
+    // Keyboard accessibility
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activate(); }
+    });
+  }
+
+  // IMPORTANT: Ensure there is NO trailing comma here.
+  var nodes = document.querySelectorAll('[data-route]');
+  for(var i = 0; i < nodes.length; i++){
+    bindRoute(nodes[i]);
+  }
+
+  // Corridor behavior
+  if(backBtn) backBtn.addEventListener('click', function(){ history.back(); });
+  if(forwardBtn) forwardBtn.addEventListener('click', function(){ history.forward(); });
+
+  // Routing events
+  window.addEventListener('hashchange', onRouteChange);
+  window.addEventListener('popstate', onRouteChange);
+
+  // Init route
+  if(!location.hash){ location.hash = '#/'; }
+  setActive(routeFromHash());
+
+  // --- Minimal test cases (console) ---
+  function assert(cond, msg){
+    if(!cond) throw new Error('Test failed: ' + msg);
+  }
+
+  (function runTests(){
+    try{
+      // Routing map
+      assert(routeFromHash('#/') === 'entrance', 'routeFromHash entrance');
+      assert(routeFromHash('#/hall') === 'hall', 'routeFromHash hall');
+      assert(routeFromHash('#/info') === 'info', 'routeFromHash info');
+      assert(routeFromHash('#/program') === 'program', 'routeFromHash program');
+      assert(routeFromHash('#/perks') === 'perks', 'routeFromHash perks');
+      assert(routeFromHash('#/faq') === 'faq', 'routeFromHash faq');
+
+      // View mapping exists
+      var keys = ['entrance','hall','info','program','perks','faq'];
+      for(var j=0; j<keys.length; j++){
+        assert(!!views[keys[j]], 'view exists: ' + keys[j]);
+      }
+
+      // goto uses hash and should not throw
+      var before = location.hash;
+      goto('#/hall');
+      assert(location.hash === '#/hall', 'goto updates hash');
+      location.hash = before;
+
+      // bindRoute should cause navigation on click
+      var tmp = document.createElement('div');
+      tmp.setAttribute('data-route', '#/info');
+      document.body.appendChild(tmp);
+      bindRoute(tmp);
+      var before2 = location.hash;
+      tmp.dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true}));
+      assert(location.hash === '#/info', 'bindRoute click navigates');
+      location.hash = before2;
+      tmp.remove();
+
+      // New: real hall doors should be bindable and clickable
+      var hallDoor = document.querySelector('#view-hall [data-route]');
+      assert(!!hallDoor, 'at least one hall door exists');
+      var before3 = location.hash;
+      hallDoor.dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true}));
+      assert(location.hash.indexOf('#/') === 0, 'click sets a hash route');
+      location.hash = before3;
+
+      console.log('[OK] routing tests passed');
+    }catch(e){
+      console.warn(e);
+    }
+  })();
+})();
+</script>
+
+</body>
+</html>
