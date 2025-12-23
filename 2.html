@@ -213,7 +213,7 @@ body.gate-open .gate-glow{ opacity: 0.9; width: 22px; }
   inset:0;
   background:#fff;
   color:#000;
-  padding:56px 14px 14px;
+  padding:30px 14px 14px;
   opacity:0;
   pointer-events:none;
   transition: opacity .25s ease .35s;
@@ -240,8 +240,8 @@ body.gate-open .gate-glow{ opacity: 0.9; width: 22px; }
 .program-door.is-open .door-back{ opacity:1; pointer-events:auto; }
 
 /* Rooms */
-.room{ padding-top: 110px; }
-.room-head{ margin-bottom: 24px; display:flex; justify-content:space-between; align-items:baseline; gap: 12px; }
+.room{ padding-top: 60px; }
+.room-head{ margin-bottom: 30px; display:flex; justify-content:space-between; align-items:baseline; gap: 12px; }
 .hint{ font-size:12px; color: var(--muted); }
 
 .info-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
@@ -304,7 +304,7 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
 
   <!-- VIEW: Hall (4 doors) -->
   <main class="view" id="view-hall" data-view>
-    <section class="hall" aria-label="복도">
+    <section class="hall" aria-label="영원의 집">
       <div class="hall-frame fade">
         <h1 style="font-size:20px; letter-spacing:.16em; margin-bottom:32px; margin-top:-56px;">House of Eternity</h1>
 
@@ -387,7 +387,6 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
               <p style="margin-top:10px; color: rgba(0,0,0,.72);">기준점 이상 받을 시, 선물 증정</p>
             </div>
             <div class="door-leaf" aria-hidden="true">
-              <span class="label">PROGRAM A </span>
               <span class="handle"></span>
             </div>
           </div>
@@ -401,7 +400,6 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
                   별도의 인화는 없습니다. 사진 찍고 폰에 저장해 가세요☆</p>
             </div>
             <div class="door-leaf" aria-hidden="true">
-              <span class="label">PROGRAM B</span>
               <span class="handle"></span>
             </div>
           </div>
@@ -413,7 +411,6 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
                   리둥이의 놀이터</p>
             </div>
             <div class="door-leaf" aria-hidden="true">
-              <span class="label">PROGRAM C</span>
               <span class="handle"></span>
             </div>
           </div>
@@ -424,21 +421,30 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
               <p style="margin-top:10px; color: rgba(0,0,0,.72);">???</p>
             </div>
             <div class="door-leaf" aria-hidden="true">
-              <span class="label">PROGRAM D</span>
+              <span class="label">???</span>
               <span class="handle"></span>
             </div>
-          </div>
+          </div> 
         </div>
       </div>
     </section>
   </main>
 
-  <!-- VIEW: Room - Perks -->
+  <!-- VIEW: Room - notice -->
   <main class="view" id="view-perks" data-view>
     <section class="room" aria-label="특전">
       <div class="fade">
-        <h2>특전</h2>
-        <p class="lead" style="margin-top:12px; color: var(--muted);">서랍은 천천히 열릴수록 선명하다.</p>
+        <h2>공지</h2>
+        <h3>특전 안내</h3>
+        <p class="lead" style="margin-top:12px; margin-bottom:12px; color: var(--muted);">
+        입장 특전 : '음료'만 구매<br>
+        럭드 특전 : '음료 + 쿠키' 구매<br><br>
+        메뉴판<br>
+        흑백동화 (콜드브루) 6,000원<br>
+        내 방안은 푸른 바다 (블루레몬에이드) 7,000원<br>
+        영원은 그렇듯 (청포도에이드) 7,000원<br>
+        초코 쿠키 4,000원<br></p>
+        <h3>럭키드로우 안내</h3>
       </div>
     </section>
   </main>
@@ -448,13 +454,13 @@ footer{ padding:48px 0 96px; border-top:1px solid var(--line); text-align:center
     <section class="room" aria-label="FAQ">
       <div class="fade">
         <h2>FAQ</h2>
-        <p class="lead" style="margin-top:12px; color: var(--muted);">누군가의 질문이, 다음 사람의 문이 된다.</p>
+        <p class="lead" style="margin-top:12px; color: var(--muted);">.</p>
       </div>
     </section>
   </main>
 
   <footer>
-    © REDOOR 5TH — House of Eternity
+    © REDOOR 5TH ANNIVERSARY— House of Eternity
   </footer>
 
 </div>
